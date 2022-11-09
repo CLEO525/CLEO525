@@ -1,7 +1,7 @@
 <div align=center>
 <h2>🌱FrontEnd Study🌱</h2>
 <h3>:books: introduction</h3>
-<h4>매일 매일 Study 업로드 중!🙌🙌</h4>
+<h4>Study 업로드 중!🙌🙌</h4>
 
 <h3>:book: Skill :book:</h3>
 <img src="https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=HTML5&logoColor=white"/>
