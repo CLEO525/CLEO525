@@ -21,6 +21,12 @@ const request = (method, url, data) => {
     });
 };
 
+export const auth = {
+  login(email, password) {
+    return request("post", "/login", { email, password });
+  },
+};
+
 export const setAuthInHeader = (token) => {
   axios.defaults.headers.common["Authorization"] = token
     ? `Bearer ${token}`
@@ -34,10 +40,22 @@ export const board = {
   create(title) {
     return request("post", "/boards", { title });
   },
+  destroy(id) {
+    return request("delete", `/boards/${id}`);
+  },
 };
 
-export const auth = {
-  login(email, password) {
-    return request("post", "/login", { email, password });
+export const card = {
+  create(title, listId, pos) {
+    return request("post", "/cards", { title, listId, pos });
+  },
+  fetch(id) {
+    return request("get", `/cards/${id}`);
+  },
+  update(id, payload) {
+    return request("put", `/cards/${id}`, payload);
+  },
+  destroy(id) {
+    return request("delete", `/cards/${id}`);
   },
 };

@@ -1,38 +1,90 @@
 <template>
-  <div>
-    Card
-    <div v-if="loading">loading Card...</div>
-    <div v-else>cid : {{cid}}</div>
-  </div>
+  <Modal class="modal-card">
+    <div slot="header" class="modal-card-header">
+      <div class="modal-card-header-title">
+        <input class="form-control" type="text" :value="card.title" 
+        :readonly="!toggleTitle" @click="toggleTitle=true" @blur="onBlurTitle" ref="inputTitle">
+      </div>
+      <a class="modal-close-btn" href="" @click.prevent="onClose">&times;</a>
+    </div>
+    <div slot="body">
+      <h3>Description</h3>
+      <textarea  class="form-control" cols="30" rows="3" placeholder="Add a more detailed description..."
+        :readonly="toggleDesc" @click="toggleDesc=true" @blur="onBlurDesc" ref="inputDesc"
+        v-model="card.description"></textarea>
+    </div>
+    <div slot="footer"></div>
+  </Modal>
 </template>
 
 <script>
+import Modal from './ModalView'
+import {mapState, mapActions} from 'vuex'
+
 export default {
-    data() {
-        return {
-            cid : 0,
-            loading: false
-        }
+  components: {Modal},
+  data() {
+    return {
+      toggleTitle: false,
+      toggleDesc: false
+    }
+  },
+  computed: {
+    ...mapState({
+      card: 'card',
+      board: 'board'
+    })
+  },
+  created() {
+    this.fetchCard()
+  },
+  methods: {
+    ...mapActions([
+      'FETCH_CARD',
+      'UPDATE_CARD'
+    ]),
+    onClose() {
+      this.$router.push(`/b/${this.board.id}`)
     },
-    watch: {
-        //route는 함수가 아닌 객체로도 호출이 가능, handler와 immediate로 즉시 호출 가능
-        '$route': {
-            handler: 'fetchData',
-            immediate: true
-        }
+    fetchCard() {
+      const id = this.$route.params.cid
+      this.FETCH_CARD({id})
     },
-    methods: {
-        fetchData(){
-            this.loading = true
-            setTimeout(() => {
-                this.cid = this.$route.params.cid
-                this.loading = false
-            }, 500)
-        }
+    onBlurTitle() {
+      this.toggleTitle = false
+      const title = this.$refs.inputTitle.value.trim()
+      if(!title) return
+      this.UPDATE_CARD({id: this.card.id, title})
+      .then(() => this.fetchCard())
     },
+    onBlurDesc() {
+      this.toggleDesc = false
+      const description = this.$refs.inputDesc.value.trim()
+      if(!description) return
+      this.UPDATE_CARD({id: this.card.id, description})
+      .then(() => this.fetchCard())
+    }
+  }
 }
 </script>
 
 <style>
-
+.modal-card .modal-container {
+  min-width: 300px;
+  max-width: 800px;
+  width: 60%;
+}
+.modal-card-header-title {
+  padding-right: 30px;  
+}
+.modal-close-btn {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  font-size: 24px;
+  text-decoration: none;
+}
+.modal-card-header {
+  position: relative;
+}
 </style>

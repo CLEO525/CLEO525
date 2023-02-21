@@ -1,52 +1,99 @@
 <template>
   <div>
-        <div class="board-wrapper">
-            <div class="board">
-                <div class="board-header">
-                    <span class="board-title">{{board.title}}</span>
-                </div>
-                <div class="list-section-wrapper">
-                    <div class="list-section">
-                        <div class="list-wrapper" v-for="list in board.lists" :key="list.pos">
-                            <List :data="list" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <div class="board-wrapper">
+          <div class="board">
+              <div class="board-header">
+                  <span class="board-title">{{board.title}}</span>
+                  <a class="board-header-btn show-menu" href="" @click.prevent="onShowSettings">
+                    ... Show Menu </a>
+              </div>
+              <div class="list-section-wrapper">
+                  <div class="list-section">
+                      <div class="list-wrapper" v-for="list in board.lists" :key="list.pos">
+                          <List :data="list" />
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <BoardSettings v-if="isShowBoardSettings"/>
+    <router-view />
   </div>
 </template>
 
 <script>
-import {mapState, mapActions }from 'vuex'
+import {mapState, mapActions, mapMutations }from 'vuex'
 import List from './ListView.vue'
+import dragger from '../utils/dragger'
+import BoardSettings from './BoardSettings.vue'
+
+
 export default {
     components: {
-        List
+        List,
+        BoardSettings
     },
     data() {
         return {
             bid : 0,
-            loading: false
+            loading: false,
+            cDragger: null
         }
     },
     computed: {
         ...mapState({
-            board: 'board'
+            board: 'board',
+            isShowBoardSettings: 'isShowBoardSettings'
         })
     },
     created() {
-        this.fetchData()
+        this.fetchData().then(() => {
+          this.SET_THEME(this.board.bgColor)
+        })
+        this.SET_IS_SHOW_BOARD_SETTINGS(false)
+    },
+    updated() {
+      this.setCardDraggable()
     },
     methods: {
+        ...mapMutations([
+          'SET_THEME',
+          'SET_IS_SHOW_BOARD_SETTINGS'
+        ]),
         ...mapActions([
             'FETCH_BOARD',
+            'UPDATE_CARD'
         ]),
         // 로딩시 로딩화면이 나오도록 설정 (임의의 딜레이 설정)
         fetchData(){
             this.loading = true
-            this.FETCH_BOARD({id: this.$route.params.bid})
+            return this.FETCH_BOARD({id: this.$route.params.bid})
             .then(() => this.loading = false)
+        },
+        setCardDraggable() {
+          if(this.cDragger) this.cDragger.destroy()
+          this.cDragger = dragger.init(Array.from(this.$el.querySelectorAll('.card-list')))
+          this.cDragger.on('drop', (el, wrapper, target, sibling) => {
+            target; sibling;
+            const targetCard = {
+              id: el.dataset.cardId * 1,
+              pos: 65535,
+            }
+            const {prev, next} = dragger.sibling({
+              el,
+              wrapper,
+              candidates: Array.from(this.$el.querySelectorAll('.card-list')),
+              type: 'card'
+            })
+            if(!prev && next) targetCard.pos = next.pos / 2
+            else if(!next && prev) targetCard.pos = prev.pos * 2
+            else if(prev && next) targetCard.pos = (prev.pos + next.pos) /2
+          
+          this.UPDATE_CARD(targetCard)
+      })
+        },
+        onShowSettings() {
+          this.SET_IS_SHOW_BOARD_SETTINGS(true)
         }
     },
 }
