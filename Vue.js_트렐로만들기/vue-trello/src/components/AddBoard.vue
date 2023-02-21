@@ -4,7 +4,7 @@
       <h2>
         Create new board
         <a href="" class="modal-default-button" 
-          @click.prevent="close">&times;</a>
+          @click.prevent="SET_IS_ADD_BOARD(false)">&times;</a>
       </h2>
     </div>
     <div slot="body">
@@ -21,6 +21,7 @@
 </template>
 
 <script>
+import {mapMutations, mapActions} from 'vuex'
 import Modal from './ModalView';
 
 export default {
@@ -40,12 +41,19 @@ export default {
        this.$refs.input.focus() 
     },
     methods: {
-        close() {
-            this.$emit('close')
-        },
+        ...mapMutations([
+            'SET_IS_ADD_BOARD'
+        ]),
+        ...mapActions([
+            'ADD_BOARD'
+        ]),
         addBoard(){
-            this.$emit('close')
-            this.$emit('submit', this.input)
+            this.SET_IS_ADD_BOARD(false)
+            this.$emit('submit')
+            //this.$emit('submit', this.input)
+            //action에서 함수를 가져와서 사용
+            //this.$store.dispatch('ADD_BOARD',{title: this.input})
+            this.ADD_BOARD({title: this.input})
         }
     }
 }
