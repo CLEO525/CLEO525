@@ -50,13 +50,8 @@ export default {
         ]),
         addBoard(){
             this.SET_IS_ADD_BOARD(false)
-            this.ADD_BOARD({title: this.input}).then(() => {
-                this.FETCH_BOARDS()
-            })
-            //this.$emit('submit', this.input)
-            //action에서 함수를 가져와서 사용
-            //this.$store.dispatch('ADD_BOARD',{title: this.input})
-            //this.$emit('submit')
+            this.ADD_BOARD({title: this.input})
+            .then( ({id}) => this.$router.push(`/b/${id}`))
         }
     }
 }
