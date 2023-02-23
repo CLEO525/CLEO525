@@ -43,6 +43,21 @@ export const board = {
   destroy(id) {
     return request("delete", `/boards/${id}`);
   },
+  update(id, payload) {
+    return request("put", `/boards/${id}`, payload);
+  },
+};
+
+export const list = {
+  create(payload) {
+    return request("post", "/lists", payload);
+  },
+  update(id, payload) {
+    return request("put", `/lists/${id}`, payload);
+  },
+  destroy(id) {
+    return request("delete", `/lists/${id}`);
+  },
 };
 
 export const card = {
